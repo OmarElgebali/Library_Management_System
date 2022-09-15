@@ -1,14 +1,25 @@
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static Scanner input = new Scanner(System.in);
     public static Reader currentReader = null;
     public static HashMap<String, Reader> Readers = new HashMap<>();
     public static HashMap<String, Book> Books = new HashMap<>();
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
         System.out.println("  -: Library_Management_System :-");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        Book b1 = new Book("b1","aut1",427,550);
+        Book b2 = new Book("z2","aut2",280,320);
+        Book b3 = new Book("y3","aut3",212,169);
+        Book b4 = new Book("t4","aut4",654,621);
+        Book b5 = new Book("i5","aut5",1485,800);
+        Books.put(b2.getName(),b2);
+        Books.put(b3.getName(),b3);
+        Books.put(b1.getName(),b1);
+        Books.put(b4.getName(),b4);
+        Books.put(b5.getName(),b5);
+        Reader reader1 = new Reader("1","1","Male","Ali","Ahmed","123st.","01010922507","test@gmail.com");
+        Readers.put(reader1.getId(),reader1);
         Page currentPage = Page.MAIN_MENU;
         while (currentPage != Page.EXIT)
         {
@@ -16,149 +27,136 @@ public class Main {
             {
                 case MAIN_MENU -> {
                     currentPage = mainMenuPage();
-                    System.out.println("======================================================================");
+                    System.out.println(new String(new char[150]).replace('\0', '='));
                 }
                 case LOGIN_PAGE -> {
-                    OutputOperations.display(TypePrint.TITLE,"Log-in");
-                    System.out.println("======================================================================");
-                    currentPage = Page.MAIN_MENU;
-                }
-                case SIGN_UP -> {
-                    OutputOperations.display(TypePrint.TITLE,"Sign-up");
-                    System.out.println("======================================================================");
-                    currentPage = Page.MAIN_MENU;
+                    OutputOperations.display(TypePrint.TITLE,"Log-in Menu");
+                    currentPage = loginPage();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
                 }
                 case LIBRARIAN_MENU -> {
                     currentPage = librarianPage();
-                    System.out.println("======================================================================");
+                    System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-//                case LIBRARIAN_ADD_READER -> {
-//                    currentPage = ;
-//                    System.out.println("======================================================================");
-//                }
+                case LIBRARIAN_ADD_READER -> {
+                    currentPage = Librarian.addReaderPage();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
 //                case LIBRARIAN_REMOVE_READER -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
 //                case LIBRARIAN_BLOCK_READER -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
 //                case LIBRARIAN_ADD_BOOK -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
 //                case LIBRARIAN_REMOVE_BOOK -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
 //                case LIBRARIAN_BOOK_ORDER_LIST -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
 //                case LIBRARIAN_SEARCH_BOOK -> {
 //                    currentPage = ;
-//                    System.out.println("======================================================================");
+//                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
                 case READER_MENU -> {
                     currentPage = readerPage();
-                    System.out.println("======================================================================");
+                    System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-//                case READER_ADD_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println("======================================================================");
-//                }
-//                case READER_REMOVE_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println("======================================================================");
-//                }
-//                case READER_SEARCH_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println("======================================================================");
-//                }
-//                case READER_RENT_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println("======================================================================");
-//                }
+                case READER_SEARCH_BOOK -> {
+                    OutputOperations.display(TypePrint.TITLE,"Search for a book");
+                    currentPage = currentReader.searchBook();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case READER_VIEW_ALL_BOOKS -> {
+                    currentPage = currentReader.viewAllBooks();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case READER_VIEW_RENT_BOOKS -> {
+                    currentPage = currentReader.viewRentedBooks();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case READER_VIEW_SELF_BOOKS -> {
+                    currentPage = currentReader.viewSelfBooks();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
             }
         }
 
     }
 
-    public static Page mainMenuPage() throws InterruptedException {
+    public static Page mainMenuPage(){
         OutputOperations.display(TypePrint.TITLE,"Main Menu");
         String[] mainMenuOptionsLabel= {
-                "Log-in", "Sign-Up", "Exit", "LIB"
+                "Log-in", "Exit"
         };
         Page[] mainMenuOptionsPages= {
-                Page.LOGIN_PAGE,Page.SIGN_UP,Page.EXIT,Page.LIBRARIAN_MENU
+                Page.LOGIN_PAGE,Page.EXIT
         };
         OutputOperations.displayMenuOptions(mainMenuOptionsLabel);
         return OutputOperations.decideBetweenOptions(mainMenuOptionsPages);
     }
-    public static Page librarianPage() throws InterruptedException {
+    public static Page librarianPage(){
         OutputOperations.display(TypePrint.TITLE,"Librarian Menu");
-        String[] mainMenuOptionsLabel= {
+        String[] librarianMenuOptionsLabel= {
                 "Add Reader", "Remove Reader","Add Book", "Remove Book",
                 "Search a Book", "View Book-Order List", "View Late Readers",
                 "Log-Out"
         };
-        Page[] mainMenuOptionsPages= {
+        Page[] librarianMenuOptionsPages= {
                 Page.LIBRARIAN_ADD_READER,Page.LIBRARIAN_REMOVE_READER,Page.LIBRARIAN_ADD_BOOK,Page.LIBRARIAN_REMOVE_BOOK,
                 Page.LIBRARIAN_SEARCH_BOOK,Page.LIBRARIAN_BOOK_ORDER_LIST, Page.LIBRARIAN_BLOCK_READER,
-                Page.LOGIN_PAGE
+                Page.MAIN_MENU
         };
-        OutputOperations.displayMenuOptions(mainMenuOptionsLabel);
-        return OutputOperations.decideBetweenOptions(mainMenuOptionsPages);
+        OutputOperations.displayMenuOptions(librarianMenuOptionsLabel);
+        return OutputOperations.decideBetweenOptions(librarianMenuOptionsPages);
 
     }
-    public static Page readerPage() throws InterruptedException {
+    public static Page readerPage(){
         OutputOperations.display(TypePrint.TITLE,"Reader Menu");
-        String[] mainMenuOptionsLabel= {
-                "Add Book", "Remove Book",
-                "Search a Book", "Request to Order a Book", "Rent a Book",
+        System.out.println(currentReader);
+        String[] readerMenuOptionsLabel= {
+                "Search a Book","View All Books",
+                "View Owned Books","View Rented Books",
                 "Log-Out"
         };
-        Page[] mainMenuOptionsPages= {
-                Page.READER_ADD_BOOK,Page.READER_REMOVE_BOOK,
-                Page.READER_SEARCH_BOOK,Page.READER_RENT_BOOK,Page.READER_REQUEST_ORDER_BOOK,
-                Page.LOGIN_PAGE
+        Page[] readerMenuOptionsPages= {
+                Page.READER_SEARCH_BOOK,Page.READER_VIEW_ALL_BOOKS,
+                Page.READER_VIEW_SELF_BOOKS,Page.READER_VIEW_RENT_BOOKS,
+                Page.MAIN_MENU
         };
-        OutputOperations.displayMenuOptions(mainMenuOptionsLabel);
-        Page returnedDecide = OutputOperations.decideBetweenOptions(mainMenuOptionsPages);
-        if (returnedDecide == Page.LOGIN_PAGE)
+        OutputOperations.displayMenuOptions(readerMenuOptionsLabel);
+        Page returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
+        if (returnedDecide == Page.MAIN_MENU)
             currentReader = null;
         return returnedDecide;
     }
-
-    public static Page loginPage() throws InterruptedException {
-        OutputOperations.display(TypePrint.TITLE,"Log-in Menu");
+    public static Page loginPage(){
         String logged_id;
         String logged_password;
-        boolean ifFound;
-        do {
-            ifFound = false;
-            System.out.print("-> ID: ");
-            logged_id = input.next();
-            System.out.print("-> Password: ");
-            logged_password = input.next();
-            if (logged_id.equals(Librarian.getId()) && logged_password.equals(Librarian.getPassword())){
-                return Page.LIBRARIAN_MENU;
-            }
-            else if(Readers.get(logged_id) != null && logged_password.equals(Readers.get(logged_id).getPassword())){
-                currentReader = Readers.get(logged_id);
-                return Page.READER_MENU;
-            }
-            else{
-                ifFound = true;
-                OutputOperations.display(TypePrint.INVALID,"Invalid Id and Password, try again ");
-            }
-        }while (ifFound);
-        return Librarian.addReaderPage();
-    }
-    public static Page signUpPage() throws InterruptedException {
-        OutputOperations.display(TypePrint.TITLE,"Sign-Up Menu");
-        return Librarian.addReaderPage();
+        System.out.print("-> ID: ");
+        logged_id = input.next();
+        System.out.print("-> Password: ");
+        logged_password = input.next();
+        if (logged_id.equals(Librarian.getId()) && logged_password.equals(Librarian.getPassword())){
+            return Page.LIBRARIAN_MENU;
+        }
+        else if(Readers.get(logged_id) != null && logged_password.equals(Readers.get(logged_id).getPassword())){
+            currentReader = Readers.get(logged_id);
+            return Page.READER_MENU;
+        }
+        else{
+            OutputOperations.display(TypePrint.INVALID,"Invalid Id and Password, try again ");
+            return loginPage();
+        }
+
     }
 }
 
