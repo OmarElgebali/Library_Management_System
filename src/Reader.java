@@ -34,10 +34,12 @@ public class Reader extends Person{
         }
         TreeMap<String, Book> sortedMap = new TreeMap<>(Main.Books);
         ArrayList<String> bookList = new ArrayList<>();
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
             bookList.add(set.getValue().getName());
             System.out.println("Book #" + bookList.size() + " " + set.getValue());
         }
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
@@ -71,10 +73,12 @@ public class Reader extends Person{
         }
         TreeMap<String, Book> sortedMap = new TreeMap<>(rentBooks);
         ArrayList<String> bookList = new ArrayList<>();
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
             bookList.add(set.getValue().getName());
             System.out.println("Book #" + bookList.size() + " " + set.getValue());
         }
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
@@ -108,10 +112,12 @@ public class Reader extends Person{
         }
         TreeMap<String, Book> sortedMap = new TreeMap<>(selfBooks);
         ArrayList<String> bookList = new ArrayList<>();
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
             bookList.add(set.getValue().getName());
             System.out.println("Book #" + bookList.size() + " " + set.getValue());
         }
+        System.out.println(new String(new char[80]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
