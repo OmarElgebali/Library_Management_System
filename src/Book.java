@@ -12,29 +12,47 @@ public class Book {
         this.pages = pages;
         this.price = price;
     }
-    public Book() {
-        Main.printTitle("New Book");
+    public Book() throws InterruptedException {
+        OutputOperations.display(TypePrint.TITLE,"New Book");
         Scanner input = new Scanner(System.in);
         String name;
         String author;
+        boolean ifFound;
         do {
             ifFound = false;
-            System.out.print("Enter User ID: ");
-            id = input.next();
-            for (int i = 0; i < Main.Users.size(); i++) {
-                if (id.equals(Main.Users.get(i).id)){
-                    ifFound = true;
-                    System.out.println("!! User Found, try again");
-                    break;
-                }
+            System.out.print("Enter Book Name: ");
+            name = input.next();
+            System.out.print("Enter Book Author: ");
+            author = input.next();
+            if (Main.Books.get(name) != null && author.equals(Main.Books.get(name).getAuthor())){
+                ifFound = true;
+                OutputOperations.display(TypePrint.LOADING, "Checking if book exists");
+                OutputOperations.display(TypePrint.INVALID, "Book found, try again");
             }
         }while (ifFound);
         this.name = name;
         this.author = author;
-        System.out.print("Enter Book Pages: ");
+        System.out.print("Enter Book Page: ");
         pages = input.nextInt();
         System.out.print("Enter Book Price: ");
         price = input.nextDouble();
-        System.out.println("User Added to System");
+        OutputOperations.display(TypePrint.LOADING, "Adding Book");
+        OutputOperations.display(TypePrint.FINISH, "Book added to system");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public double getPrice() {
+        return price;
     }
 }

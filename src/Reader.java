@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class User {
+public class Reader {
     private final String id;
     private final String password;
     private final String type;
@@ -13,40 +13,38 @@ public class User {
     public Book[] rentedBooks;
     public boolean gotBlocked;
 
-    public User() {
-        Main.printTitle("New User");
+    public Reader() throws InterruptedException {
         Scanner input = new Scanner(System.in);
         gotBlocked = false;
         boolean ifFound;
         String id;
         do {
             ifFound = false;
-            System.out.print("Enter User ID: ");
+            System.out.print("Enter Reader ID: ");
             id = input.next();
-            for (int i = 0; i < Main.Users.size(); i++) {
-                if (id.equals(Main.Users.get(i).id)){
-                    ifFound = true;
-                    System.out.println("!! User Found, try again");
-                    break;
-                }
+            if (Main.Readers.get(id) != null){
+                ifFound = true;
+                OutputOperations.display(TypePrint.LOADING, "Checking if reader exists");
+                OutputOperations.display(TypePrint.INVALID, "Reader found, try again");
             }
         }while (ifFound);
         this.id = id;
-        System.out.print("Enter User Password: ");
+        System.out.print("Enter Reader Password: ");
         password = input.next();
-        System.out.print("Enter User Type: ");
+        System.out.print("Enter Reader Type: ");
         type = input.next();
-        System.out.print("Enter User First Name: ");
+        System.out.print("Enter Reader First Name: ");
         firstName = input.next();
-        System.out.print("Enter User Last Name: ");
+        System.out.print("Enter Reader Last Name: ");
         lastName = input.next();
-        System.out.print("Enter User Address: ");
+        System.out.print("Enter Reader Address: ");
         address = input.next();
-        System.out.print("Enter User CellPhone: ");
+        System.out.print("Enter Reader CellPhone: ");
         cellPhone = input.next();
-        System.out.print("Enter User Email: ");
+        System.out.print("Enter Reader Email: ");
         email = input.next();
-        System.out.println("User Added to System");
+
+
     }
     public String getId() {
         return id;
@@ -77,9 +75,8 @@ public class User {
     public String getEmail() {
         return email;
     }
-    public void searchBook()
-    {
-        Main.printTitle("List of Books");
+    public void searchBook() throws InterruptedException {
+        OutputOperations.display(TypePrint.TITLE,"List of Books");
 
     }
 
