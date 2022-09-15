@@ -1,4 +1,7 @@
+import java.util.Scanner;
+
 public class OutputOperations {
+    public static Scanner input = new Scanner(System.in);
     public static void printTitle(String title)
     {
         System.out.println(title);
@@ -37,9 +40,10 @@ public class OutputOperations {
         slowClearMsg(msg);
     }
     public static void slowClearMsg(String msg) throws InterruptedException {
+        int speed = (msg.length()<20) ? 75:30;
         for (int i = 0; i <= msg.length(); i++) {
             System.out.print("\b");
-            Thread.sleep(75);
+            Thread.sleep(speed);
         }
     }
 
@@ -50,6 +54,32 @@ public class OutputOperations {
             case FINISH -> endingProcess("<%- " + msg + " -%>");
             case INVALID -> invalid("<!- " + msg + " -!>");
         }
+    }
+    public static void displayMenuOptions(String[] optionsLabel){
+        for (int i = 0; i < optionsLabel.length; i++) {
+            System.out.println((i+1)+". "+ optionsLabel[i]);
+        }
+    }
+
+    public static Page decideBetweenOptions(Page[] optionsPages) throws InterruptedException {
+        System.out.print("-> Choose: ");
+        String decision_wait;
+        int decision;
+        try {
+            decision_wait = input.next();
+            decision = Integer.parseInt(decision_wait);
+        }
+        catch (NumberFormatException e)
+        {
+            display(TypePrint.INVALID, "Input should be number in range [1"+","+optionsPages.length+"]");
+            return decideBetweenOptions(optionsPages);
+        }
+        if (decision < 1 || decision > optionsPages.length)
+        {
+            display(TypePrint.INVALID, "Input should be number in range [1"+","+optionsPages.length+"]");
+            return decideBetweenOptions(optionsPages);
+        }
+        return optionsPages[decision-1];
     }
 }
 

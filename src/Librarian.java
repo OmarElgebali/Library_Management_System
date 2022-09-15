@@ -11,11 +11,11 @@ public class Librarian {
         return Page.LIBRARIAN_MENU;
     }
 
-    public String getId() {
+    public static String getId() {
         return id;
     }
 
-    public String getPassword() {
+    public static String getPassword() {
         return password;
     }
 }
