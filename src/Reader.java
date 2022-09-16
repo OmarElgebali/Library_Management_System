@@ -11,6 +11,12 @@ public class Reader extends Person{
     public HashMap<String, Book> rentBooks = new HashMap<>();
     static Scanner input = new Scanner(System.in);
     public boolean gotBlocked;
+    public void blockReader(){
+        this.gotBlocked = true;
+    }
+    public void unBlockReader(){
+        this.gotBlocked = false;
+    }
 
     public Reader(String id, String password){
         super(id, password);
@@ -54,6 +60,7 @@ public class Reader extends Person{
             if (decideNum == -1)
                 return Page.READER_MENU;
             String decidedBookName = bookList.get(decideNum-1);
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Order","Rent","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REQUEST_ORDER_BOOK,
@@ -93,6 +100,7 @@ public class Reader extends Person{
             if (decideNum == -1)
                 return Page.READER_MENU;
             String decidedBookName = bookList.get(decideNum-1);
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Cancel Rent","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REMOVE_BOOK,
@@ -110,6 +118,30 @@ public class Reader extends Person{
                 OutputOperations.display(TypePrint.FINISH,"Book Rent Cancelled");
             }
         }while (currentDecision == Page.READER_VIEW_RENT_BOOKS);
+        return Page.READER_MENU; //Cancel
+    }
+
+    public Page viewOwnedBooks(){
+        OutputOperations.display(TypePrint.TITLE,"List of Owned Books");
+        OutputOperations.display(TypePrint.LOADING,"Loading Owned Books",2);
+        if (rentBooks.isEmpty())
+        {
+            OutputOperations.display(TypePrint.INVALID,"No Owned Books Found");
+            return Page.READER_MENU; //Cancel
+        }
+        TreeMap<String, Book> sortedMap = new TreeMap<>(ownedBook);
+        ArrayList<String> bookList = new ArrayList<>();
+        System.out.println(new String(new char[80]).replace('\0', '*'));
+        for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
+            bookList.add(set.getValue().getName());
+            System.out.println("Book #" + bookList.size() + " " + set.getValue());
+        }
+        System.out.println(new String(new char[80]).replace('\0', '*'));
+        int decideNum;
+        do {
+            System.out.println("<!> Enter -1 to Return to Reader Menu");
+            decideNum = OutputOperations.decideBetweenOptions(bookList.size());
+        }while (decideNum != -1);
         return Page.READER_MENU; //Cancel
     }
 
@@ -139,6 +171,7 @@ public class Reader extends Person{
                 return Page.READER_MENU;
             }
             String decidedBookName = bookList.get(decideNum-1);
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Remove Order","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REMOVE_BOOK,
@@ -160,13 +193,14 @@ public class Reader extends Person{
     }
 
     public Page searchBook(){
-        System.out.println("-> Book Name");
+        System.out.println("-> Book Name: ");
         String bookName = input.next();
         OutputOperations.display(TypePrint.LOADING,"Searching for Book",2);
         if (Main.Books.get(bookName) == null){
             return invalidBookAfterSearch("Book not found", "Search Again", Page.READER_SEARCH_BOOK);    // READER_SEARCH_BOOK || READER_MENU
         }
         OutputOperations.display(TypePrint.FINISH,"Book Found");
+        System.out.println("<@> Book's Data: " + Main.Books.get(bookName));
         OutputOperations.displayMenuOptions(new String[]{"Order","Rent","Return to Reader Menu"});
         Page currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                 Page.READER_REQUEST_ORDER_BOOK,
@@ -194,13 +228,14 @@ public class Reader extends Person{
         if (rentBooks.get(bookNameToBeRented) != null){
             return invalidBookAfterSearch("You already rented that book", tryAgainMsg, tryAgainPage);  // READER_SEARCH_BOOK || READER_MENU
         }
-        OutputOperations.display(TypePrint.LOADING,"Renting Book",2);
         rentBooks.put(bookNameToBeRented, Main.Books.get(bookNameToBeRented));
         System.out.println("<!> Rent Return Date Format is (yyyy-M-d)");
         Main.Book_Rent_List.add(new Book_Rent(Main.Books.get(bookNameToBeRented), this, dateInputForRent()));
+        OutputOperations.display(TypePrint.LOADING,"Renting Book",2);
         OutputOperations.display(TypePrint.FINISH,"Book rented and added to your renting list");
         return Page.READER_MENU;
     }
+
     public static LocalDate dateInputForRent(){
         System.out.print("-> Enter Rent Return Date: ");
         String date_wait;
@@ -214,8 +249,13 @@ public class Reader extends Person{
             OutputOperations.display(TypePrint.INVALID, "Date should be in format (yyyy-M-d)");
             return dateInputForRent();
         }
+        if (dateToReturn.isBefore(LocalDate.now())){
+            OutputOperations.display(TypePrint.INVALID, "Date shouldn't be earlier date");
+            return dateInputForRent();
+        }
         return dateToReturn;
     }
+
     public Page invalidBookAfterSearch(String msg, String tryAgainMsg, Page tryAgainPage){
         OutputOperations.display(TypePrint.INVALID,msg);
         OutputOperations.displayMenuOptions(new String[]{tryAgainMsg,"Return to Reader Menu"});
@@ -240,6 +280,7 @@ public class Reader extends Person{
         this.cellPhone = cellPhone;
         this.email = email;
     }
+
     public String getId() {
         return id;
     }
@@ -263,12 +304,6 @@ public class Reader extends Person{
     }
     public String getEmail() {
         return email;
-    }
-    public void blockReader(){
-        this.gotBlocked = true;
-    }
-    public void unBlockReader(){
-        this.gotBlocked = false;
     }
     @Override
     public String toString() {

@@ -44,13 +44,14 @@ public class Librarian {
     }
 
     public static Page searchBook(){
-        System.out.println("-> Book Name");
+        System.out.print("-> Book Name: ");
         String bookName = input.next();
         OutputOperations.display(TypePrint.LOADING,"Searching for Book",2);
         if (Main.Books.get(bookName) == null){
             return invalidBookAfterSearch("Book not found", "Search Again", Page.LIBRARIAN_SEARCH_BOOK);
         }
         OutputOperations.display(TypePrint.FINISH,"Book Found");
+        System.out.println("<@> Book's Data: " + Main.Books.get(bookName));
         OutputOperations.displayMenuOptions(new String[]{"Remove","Return to Librarian Menu"});
         Page currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                 Page.LIBRARIAN_REMOVE_BOOK,
@@ -59,16 +60,13 @@ public class Librarian {
             removeBook(bookName);
         return Page.LIBRARIAN_MENU; //Cancel
     }
+
     public static Page viewAllBooks(){
         OutputOperations.display(TypePrint.TITLE,"List of Books");
         OutputOperations.display(TypePrint.LOADING,"Loading Books",2);
         if (Main.Books.isEmpty())
         {
-            OutputOperations.display(TypePrint.INVALID,"Library is empty now, wanna add a book?");
-            OutputOperations.displayMenuOptions(new String[]{"YES","NO"});
-            int currentDecision = OutputOperations.decideBetweenOptions(2);
-            if(currentDecision == 1)
-                return Page.LIBRARIAN_ADD_BOOK;
+            OutputOperations.display(TypePrint.INVALID,"Library is empty now");
             return Page.LIBRARIAN_MENU; //Cancel
         }
         TreeMap<String, Book> sortedMap = new TreeMap<>(Main.Books);
@@ -88,6 +86,7 @@ public class Librarian {
             if (decideNum == -1)
                 return Page.LIBRARIAN_MENU;
             String decidedBookName = bookList.get(decideNum-1);
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Remove Book","Choose Again","Return to Librarian Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.LIBRARIAN_REMOVE_BOOK,
@@ -99,6 +98,21 @@ public class Librarian {
         return Page.LIBRARIAN_MENU; //Cancel
     }
 
+    public static Page invalidBookAfterSearch(String msg, String tryAgainMsg, Page tryAgainPage){
+        OutputOperations.display(TypePrint.INVALID,msg);
+        OutputOperations.displayMenuOptions(new String[]{tryAgainMsg,"Return to Librarian Menu"});
+        Page currentDecision =  OutputOperations.decideBetweenOptions(new Page[]{tryAgainPage,Page.LIBRARIAN_MENU});
+        if (currentDecision == tryAgainPage)
+        {
+            if (tryAgainPage == Page.LIBRARIAN_SEARCH_BOOK)
+                return searchBook();
+            else if (tryAgainPage == Page.LIBRARIAN_SEARCH_READER)
+                return searchReader();
+            return Page.LIBRARIAN_VIEW_ALL_BOOKS;
+        }
+        return Page.LIBRARIAN_MENU;
+    }
+
     public static void removeBook(String bookName){
         OutputOperations.display(TypePrint.LOADING, "Removing Book");
         for (Map.Entry<String, Reader> set : Main.Readers.entrySet()) {
@@ -107,6 +121,9 @@ public class Librarian {
             }
             if (!Main.Readers.get(set.getKey()).orderBook.isEmpty() && Main.Readers.get(set.getKey()).orderBook.get(bookName) != null){
                 Main.Readers.get(set.getKey()).orderBook.remove(bookName);
+            }
+            if (!Main.Readers.get(set.getKey()).ownedBook.isEmpty() && Main.Readers.get(set.getKey()).ownedBook.get(bookName) != null){
+                Main.Readers.get(set.getKey()).ownedBook.remove(bookName);
             }
         }
         for (int i = 0; i < Main.Book_Rent_List.size(); i++) {
@@ -124,22 +141,36 @@ public class Librarian {
         Main.Books.remove(bookName);
         OutputOperations.display(TypePrint.FINISH, "Book removed from system");
     }
+
     public static Page searchReader(){
-        System.out.println("-> Reader ID");
+        System.out.print("-> Reader ID: ");
         String readerID = input.next();
         OutputOperations.display(TypePrint.LOADING,"Searching for Reader",2);
         if (Main.Readers.get(readerID) == null){
             return invalidBookAfterSearch("Reader not found", "Search Again", Page.LIBRARIAN_SEARCH_READER);
         }
         OutputOperations.display(TypePrint.FINISH,"Reader Found");
-        OutputOperations.displayMenuOptions(new String[]{"Remove Reader","Return to Librarian Menu"});
-        Page currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
+        System.out.println("<@> Reader's Data: " + Main.Readers.get(readerID));
+        String[] searchReaderLabels = new String[]{"Remove Reader","Return to Librarian Menu"};
+        Page[] searchReaderActions = new Page[]{
                 Page.LIBRARIAN_REMOVE_READER,
-                Page.LIBRARIAN_MENU});
-        if (currentDecision == Page.LIBRARIAN_REMOVE_READER) //Remove
+                Page.LIBRARIAN_MENU};
+        if (Main.Readers.get(readerID).gotBlocked){
+            searchReaderLabels = new String[]{"Remove Reader","Unblock Reader","Return to Librarian Menu"};
+            searchReaderActions = new Page[]{
+                    Page.LIBRARIAN_REMOVE_READER,
+                    Page.LIBRARIAN_UNBLOCK_READER,
+                    Page.LIBRARIAN_MENU};
+        }
+        OutputOperations.displayMenuOptions(searchReaderLabels);
+        Page currentDecision = OutputOperations.decideBetweenOptions(searchReaderActions);
+        if (currentDecision == Page.LIBRARIAN_REMOVE_READER) //Remove Reader
             removeReader(readerID);
+        else if (currentDecision == Page.LIBRARIAN_UNBLOCK_READER)  //unBlock Reader
+            Main.Readers.get(readerID).unBlockReader();
         return Page.LIBRARIAN_MENU; //Cancel
     }
+
     public static void removeReader(String readerID){
         OutputOperations.display(TypePrint.LOADING, "Removing Reader");
         for (int i = 0; i < Main.Book_Rent_List.size(); i++) {
@@ -159,41 +190,23 @@ public class Librarian {
         Main.Readers.remove(readerID);
         OutputOperations.display(TypePrint.FINISH, "Reader removed from system");
     }
-    public static Page invalidBookAfterSearch(String msg, String tryAgainMsg, Page tryAgainPage){
-        OutputOperations.display(TypePrint.INVALID,msg);
-        OutputOperations.displayMenuOptions(new String[]{tryAgainMsg,"Return to Librarian Menu"});
-        Page currentDecision =  OutputOperations.decideBetweenOptions(new Page[]{tryAgainPage,Page.LIBRARIAN_MENU});
-        if (currentDecision == tryAgainPage)
-        {
-            if (tryAgainPage == Page.LIBRARIAN_SEARCH_BOOK)
-                return searchBook();
-            else if (tryAgainPage == Page.LIBRARIAN_SEARCH_READER)
-                return searchReader();
-            return Page.LIBRARIAN_VIEW_ALL_BOOKS;
-        }
-        return Page.LIBRARIAN_MENU;
-    }
 
     public static Page viewAllReaders(){
         OutputOperations.display(TypePrint.TITLE,"List of Readers");
         OutputOperations.display(TypePrint.LOADING,"Loading Readers",2);
         if (Main.Readers.isEmpty())
         {
-            OutputOperations.display(TypePrint.INVALID,"No Readers found, wanna add a reader?");
-            OutputOperations.displayMenuOptions(new String[]{"YES","NO"});
-            int currentDecision = OutputOperations.decideBetweenOptions(2);
-            if(currentDecision == 1)
-                return Page.LIBRARIAN_ADD_READER;
+            OutputOperations.display(TypePrint.INVALID,"No Readers found");
             return Page.LIBRARIAN_MENU; //Cancel
         }
         TreeMap<String, Reader> sortedMap = new TreeMap<>(Main.Readers);
         ArrayList<String> readerList = new ArrayList<>();
-        System.out.println(new String(new char[110]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         for (Map.Entry<String, Reader> set : sortedMap.entrySet()) {
             readerList.add(set.getValue().getId());
             System.out.println("Reader #" + readerList.size() + " " + set.getValue());
         }
-        System.out.println(new String(new char[110]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
@@ -203,6 +216,7 @@ public class Librarian {
             if (decideNum == -1)
                 return Page.LIBRARIAN_MENU;
             String decidedReaderID = readerList.get(decideNum-1);
+            System.out.println("<@> Reader's Data: " + Main.Readers.get(decidedReaderID));
             String[] viewAllReadersLabels = new String[]{"Remove Reader","Choose Again","Return to Librarian Menu"};
             Page[] viewAllReadersActions = new Page[]{
                     Page.LIBRARIAN_REMOVE_READER,
@@ -220,11 +234,12 @@ public class Librarian {
             currentDecision = OutputOperations.decideBetweenOptions(viewAllReadersActions);
             if (currentDecision == Page.LIBRARIAN_REMOVE_READER)  //Remove Reader
                 removeReader(decidedReaderID);
-            else if (currentDecision == Page.LIBRARIAN_UNBLOCK_READER)  //Remove Reader
+            else if (currentDecision == Page.LIBRARIAN_UNBLOCK_READER)  //unBlock Reader
                 Main.Readers.get(decidedReaderID).unBlockReader();
         }while (currentDecision == Page.LIBRARIAN_VIEW_ALL_READERS);
         return Page.LIBRARIAN_MENU; //Cancel
     }
+
     public static Page viewBookOrderList(){
         OutputOperations.display(TypePrint.TITLE,"List of Book-Orders");
         OutputOperations.display(TypePrint.LOADING,"Loading Book-Orders",2);
@@ -233,19 +248,19 @@ public class Librarian {
             OutputOperations.display(TypePrint.INVALID,"No Book-Orders found");
             return Page.LIBRARIAN_MENU;
         }
-        System.out.println(new String(new char[120]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         for (int i = 0; i < Main.Book_Order_List.size()-1; i++) {
             System.out.println("| Order #" + (i+1) + " :");
             System.out.println("| <@> Reader: " + Main.Book_Order_List.get(i).orderReader);
             System.out.println("| <@> Book: " + Main.Book_Order_List.get(i).orderedBook);
-            System.out.println(new String(new char[80]).replace('\0', '~'));
+            System.out.println(new String(new char[120]).replace('\0', '~'));
         }
         if (!Main.Book_Order_List.isEmpty()){
             System.out.println("| Order #" + (Main.Book_Order_List.size()) + " :");
             System.out.println("| <@> Reader: " + Main.Book_Order_List.get(Main.Book_Order_List.size()-1).orderReader);
             System.out.println("| <@> Book: " + Main.Book_Order_List.get(Main.Book_Order_List.size()-1).orderedBook);
         }
-        System.out.println(new String(new char[120]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
@@ -256,6 +271,7 @@ public class Librarian {
                 return Page.LIBRARIAN_MENU;
             String decidedReaderID = Main.Book_Order_List.get(decideNum-1).orderReaderID;
             String decidedBookName = Main.Book_Order_List.get(decideNum-1).orderedBookName;
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Accept Order","Decline Order","Choose Again","Return to Librarian Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.LIBRARIAN_ACCEPT_ORDER,
@@ -298,37 +314,43 @@ public class Librarian {
             }
         }
         System.out.println("<#> Safe Rents: ");
-        System.out.println(new String(new char[120]).replace('\0', '*'));
-        for (int i = 0; i < safeRents.size()-1; i++) {
-            System.out.println("| Rent #" + (i+1) +" :");
-            System.out.println("| <@> Date(yyyy-m-d): " +  safeRents.get(i).dateToReturn);
-            System.out.println("| <@> Reader: " + safeRents.get(i).rentReader);
-            System.out.println("| <@> Book: " + safeRents.get(i).rentedBook);
-            System.out.println(new String(new char[80]).replace('\0', '~'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
+        if (safeRents.isEmpty()){
+            System.out.println("<!> There are no safe rents");
         }
-        if (!safeRents.isEmpty()){
+        else {
             System.out.println("| Rent #" + (safeRents.size()) + " :");
             System.out.println("| <@> Date(yyyy-m-d): " +  safeRents.get(safeRents.size()-1).dateToReturn);
             System.out.println("| <@> Reader: " + safeRents.get(safeRents.size()-1).rentReader);
             System.out.println("| <@> Book: " + safeRents.get(safeRents.size()-1).rentedBook);
         }
-        System.out.println(new String(new char[120]).replace('\0', '*'));
+        for (int i = 1; i < safeRents.size(); i++) {
+            System.out.println(new String(new char[120]).replace('\0', '~'));
+            System.out.println("| Rent #" + (i+1) +" :");
+            System.out.println("| <@> Date(yyyy-m-d): " +  safeRents.get(i).dateToReturn);
+            System.out.println("| <@> Reader: " + safeRents.get(i).rentReader);
+            System.out.println("| <@> Book: " + safeRents.get(i).rentedBook);
+        }
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         System.out.println("<#> Non-Safe Rents: ");
-        System.out.println(new String(new char[120]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
+        if (blockRents.isEmpty()){
+            System.out.println("<!> There are no non-safe rents");
+        }
+        else {
+            System.out.println("| Rent #" + (blockRents.size()) + " :");
+            System.out.println("| <@> Date(yyyy-m-d): " + blockRents.get(blockRents.size() - 1).dateToReturn);
+            System.out.println("| <@> Reader: " + blockRents.get(blockRents.size() - 1).rentReader);
+            System.out.println("| <@> Book: " + blockRents.get(blockRents.size() - 1).rentedBook);
+        }
         for (int i = 0; i < blockRents.size()-1; i++) {
             System.out.println("| Rent #" + (i+1) +" :");
             System.out.println("| <@> Date(yyyy-m-d): " +  blockRents.get(i).dateToReturn);
             System.out.println("| <@> Reader: " + blockRents.get(i).rentReader);
             System.out.println("| <@> Book: " + blockRents.get(i).rentedBook);
-            System.out.println(new String(new char[80]).replace('\0', '~'));
+            System.out.println(new String(new char[120]).replace('\0', '~'));
         }
-        if (!blockRents.isEmpty()){
-            System.out.println("| Rent #" + (blockRents.size()) + " :");
-            System.out.println("| <@> Date(yyyy-m-d): " +  blockRents.get(blockRents.size()-1).dateToReturn);
-            System.out.println("| <@> Reader: " + blockRents.get(blockRents.size()-1).rentReader);
-            System.out.println("| <@> Book: " + blockRents.get(blockRents.size()-1).rentedBook);
-        }
-        System.out.println(new String(new char[120]).replace('\0', '*'));
+        System.out.println(new String(new char[150]).replace('\0', '*'));
         Page currentDecision;
         int decideNum;
         do {
@@ -339,6 +361,7 @@ public class Librarian {
                 return Page.LIBRARIAN_MENU;
             String decidedReaderID = blockRents.get(decideNum-1).rentReaderID;
             String decidedBookName = blockRents.get(decideNum-1).rentedBookName;
+            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Block Reader and Cancel Rent","Choose Again","Return to Librarian Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.LIBRARIAN_BLOCK_READER,

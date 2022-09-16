@@ -20,8 +20,10 @@ public class Main {
         Books.put(b1.getName(),b1);
         Books.put(b4.getName(),b4);
         Books.put(b5.getName(),b5);
-        Reader reader1 = new Reader("1","1","Male","Ali","Ahmed","123st.","01010922507","test@gmail.com");
+        Reader reader1 = new Reader("1","1","Male","Ali","Ahmed","123st.","01010922507","alitest@gmail.com");
+        Reader reader2 = new Reader("2","2","Female","Sally","aaaaa","546st.","01280127878","sallyTest@gmail.com");
         Readers.put(reader1.getId(),reader1);
+        Readers.put(reader2.getId(),reader2);
         Page currentPage = Page.MAIN_MENU;
         while (currentPage != Page.EXIT)
         {
@@ -30,73 +32,77 @@ public class Main {
                 // System Pages
                 case MAIN_MENU -> {
                     currentPage = mainMenuPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LOGIN_PAGE -> {
                     OutputOperations.display(TypePrint.TITLE,"Log-in Menu");
                     currentPage = loginPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 // Librarian Pages
                 case LIBRARIAN_MENU -> {
                     currentPage = librarianPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_ADD_READER -> {
                     currentPage = Librarian.addReaderPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_VIEW_ALL_READERS -> {
                     currentPage = Librarian.viewAllReaders();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_SEARCH_READER -> {
                     OutputOperations.display(TypePrint.TITLE,"Search For A Reader");
                     currentPage = Librarian.searchReader();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_ADD_BOOK -> {
                     currentPage = Librarian.addBookPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_VIEW_ALL_BOOKS -> {
                     currentPage = Librarian.viewAllBooks();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_BOOK_ORDER_LIST -> {
                     currentPage = Librarian.viewBookOrderList();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_BOOK_RENT_LIST -> {
                     currentPage = Librarian.viewBookRentList();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case LIBRARIAN_SEARCH_BOOK -> {
                     OutputOperations.display(TypePrint.TITLE,"Search For A Book");
                     currentPage = Librarian.searchBook();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 // Reader Pages
                 case READER_MENU -> {
                     currentPage = readerPage();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case READER_SEARCH_BOOK -> {
                     OutputOperations.display(TypePrint.TITLE,"Search For A Book");
                     currentPage = currentReader.searchBook();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case READER_VIEW_ALL_BOOKS -> {
                     currentPage = currentReader.viewAllBooks();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case READER_VIEW_RENT_BOOKS -> {
                     currentPage = currentReader.viewRentedBooks();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
                 case READER_VIEW_ORDER_BOOKS -> {
                     currentPage = currentReader.viewOrderBooks();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
+                    System.out.println(new String(new char[180]).replace('\0', '='));
+                }
+                case READER_VIEW_OWNED_BOOKS -> {
+                    currentPage = currentReader.viewOwnedBooks();
+                    System.out.println(new String(new char[180]).replace('\0', '='));
                 }
             }
         }
@@ -123,7 +129,7 @@ public class Main {
                 "Log-Out"
         };
         Page[] librarianMenuOptionsPages= {
-                Page.LIBRARIAN_ADD_READER,Page.LIBRARIAN_SEARCH_READER,
+                Page.LIBRARIAN_ADD_READER,Page.LIBRARIAN_SEARCH_READER,Page.LIBRARIAN_VIEW_ALL_READERS,
                 Page.LIBRARIAN_ADD_BOOK,Page.LIBRARIAN_SEARCH_BOOK,Page.LIBRARIAN_VIEW_ALL_BOOKS,
                 Page.LIBRARIAN_BOOK_ORDER_LIST, Page.LIBRARIAN_BOOK_RENT_LIST,
                 Page.MAIN_MENU
@@ -134,29 +140,34 @@ public class Main {
     }
     public static Page readerPage() {
         OutputOperations.display(TypePrint.TITLE, "Reader Menu");
-        if (Readers.get(currentReader).gotBlocked) {
-            OutputOperations.display(TypePrint.INVALID, "User Got Blocked");
-        }
         System.out.println("<@> Your Data: " + currentReader);
-        System.out.println("<!> All Actions is Blocked except Log-Out .. Contact the Librarian");
         String[] readerMenuOptionsLabel = {
                 "Search a Book", "View Owned Books",
-                "View All Books","View Ordered Books",
-                "View Rented Books","Log-Out"
+                "View Ordered Books","View Rented Books",
+                "View All Books","Log-Out"
         };
         Page[] readerMenuOptionsPages = {
                 Page.READER_SEARCH_BOOK, Page.READER_VIEW_OWNED_BOOKS,
-                Page.READER_VIEW_ALL_BOOKS,Page.READER_VIEW_ORDER_BOOKS,
-                Page.READER_VIEW_RENT_BOOKS,Page.MAIN_MENU
+                Page.READER_VIEW_ORDER_BOOKS,Page.READER_VIEW_RENT_BOOKS,
+                Page.READER_VIEW_ALL_BOOKS,Page.MAIN_MENU
         };
+        if (currentReader.gotBlocked) {
+            OutputOperations.display(TypePrint.INVALID, "User Got Blocked");
+            System.out.println("<!> All Actions is Blocked except Log-Out .. Contact the Librarian");
+        }
         OutputOperations.displayMenuOptions(readerMenuOptionsLabel);
         Page returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
-        while (returnedDecide != Page.MAIN_MENU){
-            OutputOperations.display(TypePrint.INVALID,"This Actions is Blocked");
-            returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
+        if (currentReader.gotBlocked) {
+            while (returnedDecide != Page.MAIN_MENU) {
+                OutputOperations.display(TypePrint.INVALID, "This Actions is Blocked");
+                returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
+            }
+            currentReader = null;
+            return Page.MAIN_MENU;
         }
-        currentReader = null;
-        return Page.MAIN_MENU;
+        if (returnedDecide == Page.MAIN_MENU)
+            currentReader = null;
+        return returnedDecide;
     }
     public static Page loginPage(){
         String logged_id;
