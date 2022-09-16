@@ -18,7 +18,6 @@ public class Book {
         this.price = price;
     }
     public Book(){
-        OutputOperations.display(TypePrint.TITLE,"New Book");
         Scanner input = new Scanner(System.in);
         String name;
         boolean ifFound;
@@ -39,8 +38,6 @@ public class Book {
         pages = input.nextInt();
         System.out.print("Enter Book Price: ");
         price = input.nextDouble();
-        OutputOperations.display(TypePrint.LOADING, "Adding Book");
-        OutputOperations.display(TypePrint.FINISH, "Book added to system");
     }
 
     public String getName() {

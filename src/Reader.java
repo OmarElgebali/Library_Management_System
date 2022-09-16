@@ -233,7 +233,8 @@ public class Reader extends Person{
     @Override
     public String toString() {
         return "<@> Your Data: {" +
-                "Name='" + firstName + ' ' + lastName + '\'' +
+                "ID='" + id + '\'' +
+                ", Name='" + firstName + ' ' + lastName + '\'' +
                 ", Email='" + email + '\'' +
                 ", CellPhone='" + cellPhone + '\'' +
                 ", Address='" + address + '\'' +

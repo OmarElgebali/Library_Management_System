@@ -25,6 +25,7 @@ public class Main {
         {
             switch (currentPage)
             {
+                // System Pages
                 case MAIN_MENU -> {
                     currentPage = mainMenuPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
@@ -34,6 +35,7 @@ public class Main {
                     currentPage = loginPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
+                // Librarian Pages
                 case LIBRARIAN_MENU -> {
                     currentPage = librarianPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
@@ -42,30 +44,37 @@ public class Main {
                     currentPage = Librarian.addReaderPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-//                case LIBRARIAN_REMOVE_READER -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
 //                case LIBRARIAN_BLOCK_READER -> {
 //                    currentPage = ;
 //                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
-//                case LIBRARIAN_ADD_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
-//                case LIBRARIAN_REMOVE_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
+                case LIBRARIAN_ADD_BOOK -> {
+                    currentPage = Librarian.addBookPage();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case LIBRARIAN_VIEW_ALL_BOOKS -> {
+                    currentPage = Librarian.viewAllBooks();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case LIBRARIAN_VIEW_ALL_READERS -> {
+                    currentPage = Librarian.viewAllReaders();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
 //                case LIBRARIAN_BOOK_ORDER_LIST -> {
 //                    currentPage = ;
 //                    System.out.println(new String(new char[150]).replace('\0', '='));
 //                }
-//                case LIBRARIAN_SEARCH_BOOK -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
+                case LIBRARIAN_SEARCH_BOOK -> {
+                    OutputOperations.display(TypePrint.TITLE,"Search for a book");
+                    currentPage = Librarian.searchBook();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case LIBRARIAN_SEARCH_READER -> {
+                    OutputOperations.display(TypePrint.TITLE,"Search for a reader");
+                    currentPage = Librarian.searchReader();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                // Reader Pages
                 case READER_MENU -> {
                     currentPage = readerPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
