@@ -5,6 +5,8 @@ public class Main {
     public static Reader currentReader = null;
     public static HashMap<String, Reader> Readers = new HashMap<>();
     public static HashMap<String, Book> Books = new HashMap<>();
+    public static ArrayList<Book_Order> Book_Order_List = new ArrayList<>();
+    public static ArrayList<Book_Rent> Book_Rent_List = new ArrayList<>();
     public static void main(String[] args){
         System.out.println("  -: Library_Management_System :-");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -44,10 +46,15 @@ public class Main {
                     currentPage = Librarian.addReaderPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-//                case LIBRARIAN_BLOCK_READER -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
+                case LIBRARIAN_VIEW_ALL_READERS -> {
+                    currentPage = Librarian.viewAllReaders();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
+                case LIBRARIAN_SEARCH_READER -> {
+                    OutputOperations.display(TypePrint.TITLE,"Search For A Reader");
+                    currentPage = Librarian.searchReader();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
                 case LIBRARIAN_ADD_BOOK -> {
                     currentPage = Librarian.addBookPage();
                     System.out.println(new String(new char[150]).replace('\0', '='));
@@ -56,22 +63,17 @@ public class Main {
                     currentPage = Librarian.viewAllBooks();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-                case LIBRARIAN_VIEW_ALL_READERS -> {
-                    currentPage = Librarian.viewAllReaders();
+                case LIBRARIAN_BOOK_ORDER_LIST -> {
+                    currentPage = Librarian.viewBookOrderList();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-//                case LIBRARIAN_BOOK_ORDER_LIST -> {
-//                    currentPage = ;
-//                    System.out.println(new String(new char[150]).replace('\0', '='));
-//                }
+                case LIBRARIAN_BOOK_RENT_LIST -> {
+                    currentPage = Librarian.viewBookRentList();
+                    System.out.println(new String(new char[150]).replace('\0', '='));
+                }
                 case LIBRARIAN_SEARCH_BOOK -> {
-                    OutputOperations.display(TypePrint.TITLE,"Search for a book");
+                    OutputOperations.display(TypePrint.TITLE,"Search For A Book");
                     currentPage = Librarian.searchBook();
-                    System.out.println(new String(new char[150]).replace('\0', '='));
-                }
-                case LIBRARIAN_SEARCH_READER -> {
-                    OutputOperations.display(TypePrint.TITLE,"Search for a reader");
-                    currentPage = Librarian.searchReader();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
                 // Reader Pages
@@ -80,7 +82,7 @@ public class Main {
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
                 case READER_SEARCH_BOOK -> {
-                    OutputOperations.display(TypePrint.TITLE,"Search for a book");
+                    OutputOperations.display(TypePrint.TITLE,"Search For A Book");
                     currentPage = currentReader.searchBook();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
@@ -92,8 +94,8 @@ public class Main {
                     currentPage = currentReader.viewRentedBooks();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
-                case READER_VIEW_SELF_BOOKS -> {
-                    currentPage = currentReader.viewSelfBooks();
+                case READER_VIEW_ORDER_BOOKS -> {
+                    currentPage = currentReader.viewOrderBooks();
                     System.out.println(new String(new char[150]).replace('\0', '='));
                 }
             }
@@ -115,37 +117,46 @@ public class Main {
     public static Page librarianPage(){
         OutputOperations.display(TypePrint.TITLE,"Librarian Menu");
         String[] librarianMenuOptionsLabel= {
-                "Add Reader", "Remove Reader","Add Book", "Remove Book",
-                "Search a Book", "View Book-Order List", "View Late Readers",
+                "Add Reader", "Search a Reader","View Readers",
+                "Add Book","Search a Book", "View All Books",
+                "View Book-Order List", "View Rent Book List",
                 "Log-Out"
         };
         Page[] librarianMenuOptionsPages= {
-                Page.LIBRARIAN_ADD_READER,Page.LIBRARIAN_REMOVE_READER,Page.LIBRARIAN_ADD_BOOK,Page.LIBRARIAN_REMOVE_BOOK,
-                Page.LIBRARIAN_SEARCH_BOOK,Page.LIBRARIAN_BOOK_ORDER_LIST, Page.LIBRARIAN_BLOCK_READER,
+                Page.LIBRARIAN_ADD_READER,Page.LIBRARIAN_SEARCH_READER,
+                Page.LIBRARIAN_ADD_BOOK,Page.LIBRARIAN_SEARCH_BOOK,Page.LIBRARIAN_VIEW_ALL_BOOKS,
+                Page.LIBRARIAN_BOOK_ORDER_LIST, Page.LIBRARIAN_BOOK_RENT_LIST,
                 Page.MAIN_MENU
         };
         OutputOperations.displayMenuOptions(librarianMenuOptionsLabel);
         return OutputOperations.decideBetweenOptions(librarianMenuOptionsPages);
 
     }
-    public static Page readerPage(){
-        OutputOperations.display(TypePrint.TITLE,"Reader Menu");
-        System.out.println(currentReader);
-        String[] readerMenuOptionsLabel= {
-                "Search a Book","View All Books",
-                "View Owned Books","View Rented Books",
-                "Log-Out"
+    public static Page readerPage() {
+        OutputOperations.display(TypePrint.TITLE, "Reader Menu");
+        if (Readers.get(currentReader).gotBlocked) {
+            OutputOperations.display(TypePrint.INVALID, "User Got Blocked");
+        }
+        System.out.println("<@> Your Data: " + currentReader);
+        System.out.println("<!> All Actions is Blocked except Log-Out .. Contact the Librarian");
+        String[] readerMenuOptionsLabel = {
+                "Search a Book", "View Owned Books",
+                "View All Books","View Ordered Books",
+                "View Rented Books","Log-Out"
         };
-        Page[] readerMenuOptionsPages= {
-                Page.READER_SEARCH_BOOK,Page.READER_VIEW_ALL_BOOKS,
-                Page.READER_VIEW_SELF_BOOKS,Page.READER_VIEW_RENT_BOOKS,
-                Page.MAIN_MENU
+        Page[] readerMenuOptionsPages = {
+                Page.READER_SEARCH_BOOK, Page.READER_VIEW_OWNED_BOOKS,
+                Page.READER_VIEW_ALL_BOOKS,Page.READER_VIEW_ORDER_BOOKS,
+                Page.READER_VIEW_RENT_BOOKS,Page.MAIN_MENU
         };
         OutputOperations.displayMenuOptions(readerMenuOptionsLabel);
         Page returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
-        if (returnedDecide == Page.MAIN_MENU)
-            currentReader = null;
-        return returnedDecide;
+        while (returnedDecide != Page.MAIN_MENU){
+            OutputOperations.display(TypePrint.INVALID,"This Actions is Blocked");
+            returnedDecide = OutputOperations.decideBetweenOptions(readerMenuOptionsPages);
+        }
+        currentReader = null;
+        return Page.MAIN_MENU;
     }
     public static Page loginPage(){
         String logged_id;
@@ -162,7 +173,7 @@ public class Main {
             return Page.READER_MENU;
         }
         else{
-            OutputOperations.display(TypePrint.INVALID,"Invalid Id and Password, try again ");
+            OutputOperations.display(TypePrint.INVALID,"Invalid Id and Password, try again");
             return loginPage();
         }
 

@@ -1,8 +1,13 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class Reader extends Person{
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-M-d");
     private final String  type, firstName, lastName, address, cellPhone, email;
-    public HashMap<String, Book> selfBooks = new HashMap<>();
+    public HashMap<String, Book> orderBook = new HashMap<>();
+    public HashMap<String, Book> ownedBook = new HashMap<>();
     public HashMap<String, Book> rentBooks = new HashMap<>();
     static Scanner input = new Scanner(System.in);
     public boolean gotBlocked;
@@ -82,7 +87,7 @@ public class Reader extends Person{
         Page currentDecision;
         int decideNum;
         do {
-            System.out.println("<!> Enter #BookNumber to cancel its rent");
+            System.out.println("<!> Enter #BookNumber to choose an action on it");
             System.out.println("<!> Enter -1 to Return to Reader Menu");
             decideNum = OutputOperations.decideBetweenOptions(bookList.size());
             if (decideNum == -1)
@@ -93,24 +98,30 @@ public class Reader extends Person{
                     Page.READER_REMOVE_BOOK,
                     Page.READER_VIEW_RENT_BOOKS,
                     Page.READER_MENU});
-            if (currentDecision == Page.READER_REMOVE_BOOK){  //Order
+            if (currentDecision == Page.READER_REMOVE_BOOK){  //Cancel Rent
                 OutputOperations.display(TypePrint.LOADING,"Cancelling Book Rent",2);
                 rentBooks.remove(decidedBookName);
+                for (int i = 0; i < Main.Book_Rent_List.size(); i++) {
+                    if (Main.Book_Rent_List.get(i).rentReaderID.equals(this.id) && Main.Book_Rent_List.get(i).rentedBookName.equals(decidedBookName)){
+                        Main.Book_Rent_List.remove(i);
+                        break;
+                    }
+                }
                 OutputOperations.display(TypePrint.FINISH,"Book Rent Cancelled");
             }
         }while (currentDecision == Page.READER_VIEW_RENT_BOOKS);
         return Page.READER_MENU; //Cancel
     }
 
-    public Page viewSelfBooks(){
-        OutputOperations.display(TypePrint.TITLE,"List of Owned Books");
-        OutputOperations.display(TypePrint.LOADING,"Loading Books Owned for Read",2);
-        if (selfBooks.isEmpty())
+    public Page viewOrderBooks(){
+        OutputOperations.display(TypePrint.TITLE,"List of Ordered Books");
+        OutputOperations.display(TypePrint.LOADING,"Loading Books Ordered for Read",2);
+        if (orderBook.isEmpty())
         {
-            OutputOperations.display(TypePrint.INVALID,"No Owned Books Found");
+            OutputOperations.display(TypePrint.INVALID,"No Ordered Books Found");
             return Page.READER_MENU; //Cancel
         }
-        TreeMap<String, Book> sortedMap = new TreeMap<>(selfBooks);
+        TreeMap<String, Book> sortedMap = new TreeMap<>(orderBook);
         ArrayList<String> bookList = new ArrayList<>();
         System.out.println(new String(new char[80]).replace('\0', '*'));
         for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
@@ -121,24 +132,30 @@ public class Reader extends Person{
         Page currentDecision;
         int decideNum;
         do {
-            System.out.println("<!> Enter #BookNumber to remove");
+            System.out.println("<!> Enter #BookNumber to choose an action on it");
             System.out.println("<!> Enter -1 to Return to Reader Menu");
             decideNum = OutputOperations.decideBetweenOptions(bookList.size());
             if (decideNum == -1) {
                 return Page.READER_MENU;
             }
             String decidedBookName = bookList.get(decideNum-1);
-            OutputOperations.displayMenuOptions(new String[]{"Remove","Choose Again","Return to Reader Menu"});
+            OutputOperations.displayMenuOptions(new String[]{"Remove Order","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REMOVE_BOOK,
-                    Page.READER_VIEW_SELF_BOOKS,
+                    Page.READER_VIEW_ORDER_BOOKS,
                     Page.READER_MENU});
-            if (currentDecision == Page.READER_REMOVE_BOOK){  //Order
-                OutputOperations.display(TypePrint.LOADING,"Removing Book from your Reading list",2);
-                selfBooks.remove(decidedBookName);
-                OutputOperations.display(TypePrint.FINISH,"Book Removed from your Reading list");
+            if (currentDecision == Page.READER_REMOVE_BOOK){  //Remove
+                OutputOperations.display(TypePrint.LOADING,"Removing Book from your Ordered Reading list",2);
+                orderBook.remove(decidedBookName);
+                for (int i = 0; i < Main.Book_Order_List.size(); i++) {
+                    if (Main.Book_Order_List.get(i).orderReaderID.equals(this.id) && Main.Book_Order_List.get(i).orderedBookName.equals(decidedBookName)){
+                        Main.Book_Order_List.remove(i);
+                        break;
+                    }
+                }
+                OutputOperations.display(TypePrint.FINISH,"Book Removed from your Ordered Reading list");
             }
-        }while (currentDecision == Page.READER_VIEW_SELF_BOOKS);
+        }while (currentDecision == Page.READER_VIEW_ORDER_BOOKS);
         return Page.READER_MENU; //Cancel
     }
 
@@ -163,11 +180,12 @@ public class Reader extends Person{
     }
 
     public Page addBook(String bookNameToBeAdd, String tryAgainMsg, Page tryAgainPage){
-        if (selfBooks.get(bookNameToBeAdd) != null){
+        if (orderBook.get(bookNameToBeAdd) != null){
             return invalidBookAfterSearch("You already have that book", tryAgainMsg,tryAgainPage);    // READER_SEARCH_BOOK || READER_MENU
         }
         OutputOperations.display(TypePrint.LOADING,"Adding Book to your Reading list",2);
-        selfBooks.put(bookNameToBeAdd, Main.Books.get(bookNameToBeAdd));
+        orderBook.put(bookNameToBeAdd, Main.Books.get(bookNameToBeAdd));
+        Main.Book_Order_List.add(new Book_Order(Main.Books.get(bookNameToBeAdd), this));
         OutputOperations.display(TypePrint.FINISH,"Book Added to your Reading list");
         return Page.READER_MENU;
     }
@@ -178,10 +196,26 @@ public class Reader extends Person{
         }
         OutputOperations.display(TypePrint.LOADING,"Renting Book",2);
         rentBooks.put(bookNameToBeRented, Main.Books.get(bookNameToBeRented));
+        System.out.println("<!> Rent Return Date Format is (yyyy-M-d)");
+        Main.Book_Rent_List.add(new Book_Rent(Main.Books.get(bookNameToBeRented), this, dateInputForRent()));
         OutputOperations.display(TypePrint.FINISH,"Book rented and added to your renting list");
         return Page.READER_MENU;
     }
-
+    public static LocalDate dateInputForRent(){
+        System.out.print("-> Enter Rent Return Date: ");
+        String date_wait;
+        LocalDate dateToReturn;
+        try {
+            date_wait = input.next();
+            dateToReturn = LocalDate.parse(date_wait, dateFormat);
+        }
+        catch (DateTimeParseException e)
+        {
+            OutputOperations.display(TypePrint.INVALID, "Date should be in format (yyyy-M-d)");
+            return dateInputForRent();
+        }
+        return dateToReturn;
+    }
     public Page invalidBookAfterSearch(String msg, String tryAgainMsg, Page tryAgainPage){
         OutputOperations.display(TypePrint.INVALID,msg);
         OutputOperations.displayMenuOptions(new String[]{tryAgainMsg,"Return to Reader Menu"});
@@ -230,9 +264,15 @@ public class Reader extends Person{
     public String getEmail() {
         return email;
     }
+    public void blockReader(){
+        this.gotBlocked = true;
+    }
+    public void unBlockReader(){
+        this.gotBlocked = false;
+    }
     @Override
     public String toString() {
-        return "<@> Your Data: {" +
+        return "{" +
                 "ID='" + id + '\'' +
                 ", Name='" + firstName + ' ' + lastName + '\'' +
                 ", Email='" + email + '\'' +
