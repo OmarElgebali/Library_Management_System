@@ -38,12 +38,12 @@ public class Reader extends Person{
     public Page viewAllBooks(){
         OutputOperations.display(TypePrint.TITLE,"List of Books");
         OutputOperations.display(TypePrint.LOADING,"Loading Books",2);
-        if (Main.Books.isEmpty())
+        if (DataSets.Books.isEmpty())
         {
             OutputOperations.display(TypePrint.INVALID,"Library is empty now, come again later");
             return Page.READER_MENU; //Cancel
         }
-        TreeMap<String, Book> sortedMap = new TreeMap<>(Main.Books);
+        TreeMap<String, Book> sortedMap = new TreeMap<>(DataSets.Books);
         ArrayList<String> bookList = new ArrayList<>();
         System.out.println(new String(new char[80]).replace('\0', '*'));
         for (Map.Entry<String, Book> set : sortedMap.entrySet()) {
@@ -60,7 +60,7 @@ public class Reader extends Person{
             if (decideNum == -1)
                 return Page.READER_MENU;
             String decidedBookName = bookList.get(decideNum-1);
-            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
+            System.out.println("<@> Book's Data: " + DataSets.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Order","Rent","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REQUEST_ORDER_BOOK,
@@ -100,7 +100,7 @@ public class Reader extends Person{
             if (decideNum == -1)
                 return Page.READER_MENU;
             String decidedBookName = bookList.get(decideNum-1);
-            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
+            System.out.println("<@> Book's Data: " + DataSets.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Cancel Rent","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REMOVE_BOOK,
@@ -109,9 +109,9 @@ public class Reader extends Person{
             if (currentDecision == Page.READER_REMOVE_BOOK){  //Cancel Rent
                 OutputOperations.display(TypePrint.LOADING,"Cancelling Book Rent",2);
                 rentBooks.remove(decidedBookName);
-                for (int i = 0; i < Main.Book_Rent_List.size(); i++) {
-                    if (Main.Book_Rent_List.get(i).rentReaderID.equals(this.id) && Main.Book_Rent_List.get(i).rentedBookName.equals(decidedBookName)){
-                        Main.Book_Rent_List.remove(i);
+                for (int i = 0; i < DataSets.Book_Rent_List.size(); i++) {
+                    if (DataSets.Book_Rent_List.get(i).rentReaderID.equals(this.id) && DataSets.Book_Rent_List.get(i).rentedBookName.equals(decidedBookName)){
+                        DataSets.Book_Rent_List.remove(i);
                         break;
                     }
                 }
@@ -171,7 +171,7 @@ public class Reader extends Person{
                 return Page.READER_MENU;
             }
             String decidedBookName = bookList.get(decideNum-1);
-            System.out.println("<@> Book's Data: " + Main.Books.get(decidedBookName));
+            System.out.println("<@> Book's Data: " + DataSets.Books.get(decidedBookName));
             OutputOperations.displayMenuOptions(new String[]{"Remove Order","Choose Again","Return to Reader Menu"});
             currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                     Page.READER_REMOVE_BOOK,
@@ -180,9 +180,9 @@ public class Reader extends Person{
             if (currentDecision == Page.READER_REMOVE_BOOK){  //Remove
                 OutputOperations.display(TypePrint.LOADING,"Removing Book from your Ordered Reading list",2);
                 orderBook.remove(decidedBookName);
-                for (int i = 0; i < Main.Book_Order_List.size(); i++) {
-                    if (Main.Book_Order_List.get(i).orderReaderID.equals(this.id) && Main.Book_Order_List.get(i).orderedBookName.equals(decidedBookName)){
-                        Main.Book_Order_List.remove(i);
+                for (int i = 0; i < DataSets.Book_Order_List.size(); i++) {
+                    if (DataSets.Book_Order_List.get(i).orderReaderID.equals(this.id) && DataSets.Book_Order_List.get(i).orderedBookName.equals(decidedBookName)){
+                        DataSets.Book_Order_List.remove(i);
                         break;
                     }
                 }
@@ -196,11 +196,11 @@ public class Reader extends Person{
         System.out.println("-> Book Name: ");
         String bookName = input.next();
         OutputOperations.display(TypePrint.LOADING,"Searching for Book",2);
-        if (Main.Books.get(bookName) == null){
+        if (DataSets.Books.get(bookName) == null){
             return invalidBookAfterSearch("Book not found", "Search Again", Page.READER_SEARCH_BOOK);    // READER_SEARCH_BOOK || READER_MENU
         }
         OutputOperations.display(TypePrint.FINISH,"Book Found");
-        System.out.println("<@> Book's Data: " + Main.Books.get(bookName));
+        System.out.println("<@> Book's Data: " + DataSets.Books.get(bookName));
         OutputOperations.displayMenuOptions(new String[]{"Order","Rent","Return to Reader Menu"});
         Page currentDecision = OutputOperations.decideBetweenOptions(new Page[]{
                 Page.READER_REQUEST_ORDER_BOOK,
@@ -218,8 +218,8 @@ public class Reader extends Person{
             return invalidBookAfterSearch("You already have that book", tryAgainMsg,tryAgainPage);    // READER_SEARCH_BOOK || READER_MENU
         }
         OutputOperations.display(TypePrint.LOADING,"Adding Book to your Reading list",2);
-        orderBook.put(bookNameToBeAdd, Main.Books.get(bookNameToBeAdd));
-        Main.Book_Order_List.add(new Book_Order(Main.Books.get(bookNameToBeAdd), this));
+        orderBook.put(bookNameToBeAdd, DataSets.Books.get(bookNameToBeAdd));
+        DataSets.Book_Order_List.add(new Book_Order(DataSets.Books.get(bookNameToBeAdd), this));
         OutputOperations.display(TypePrint.FINISH,"Book Added to your Reading list");
         return Page.READER_MENU;
     }
@@ -228,9 +228,9 @@ public class Reader extends Person{
         if (rentBooks.get(bookNameToBeRented) != null){
             return invalidBookAfterSearch("You already rented that book", tryAgainMsg, tryAgainPage);  // READER_SEARCH_BOOK || READER_MENU
         }
-        rentBooks.put(bookNameToBeRented, Main.Books.get(bookNameToBeRented));
+        rentBooks.put(bookNameToBeRented, DataSets.Books.get(bookNameToBeRented));
         System.out.println("<!> Rent Return Date Format is (yyyy-M-d)");
-        Main.Book_Rent_List.add(new Book_Rent(Main.Books.get(bookNameToBeRented), this, dateInputForRent()));
+        DataSets.Book_Rent_List.add(new Book_Rent(DataSets.Books.get(bookNameToBeRented), this, dateInputForRent()));
         OutputOperations.display(TypePrint.LOADING,"Renting Book",2);
         OutputOperations.display(TypePrint.FINISH,"Book rented and added to your renting list");
         return Page.READER_MENU;

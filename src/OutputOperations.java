@@ -2,8 +2,7 @@ import java.util.Scanner;
 
 public class OutputOperations {
     public static Scanner input = new Scanner(System.in);
-    public static void printTitle(String title)
-    {
+    public static void printTitle(String title){
         System.out.println(title);
         for (int i = 0; i < title.length(); i++) {
             System.out.print("#");
@@ -65,7 +64,6 @@ public class OutputOperations {
             e.printStackTrace();
         }
     }
-
     public static void display(TypePrint TP, String msg){
         switch (TP){
             case TITLE -> printTitle("<#- "+msg+" -#>");
@@ -88,7 +86,6 @@ public class OutputOperations {
             System.out.println((i+1)+". "+ optionsLabel[i]);
         }
     }
-
     public static Page decideBetweenOptions(Page[] optionsPages){
         System.out.print("-> Choose: ");
         String decision_wait;

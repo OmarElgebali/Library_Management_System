@@ -25,7 +25,7 @@ public class Book {
             ifFound = false;
             System.out.print("Enter Book Name: ");
             name = input.next();
-            if (Main.Books.get(name) != null){
+            if (DataSets.Books.get(name) != null){
                 ifFound = true;
                 OutputOperations.display(TypePrint.LOADING, "Checking if book exists");
                 OutputOperations.display(TypePrint.INVALID, "Book found, try again");
